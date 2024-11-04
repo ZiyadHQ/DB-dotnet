@@ -18,6 +18,11 @@ int addRandomDocsBenchmark(DataBase dataBase, int miliseconds)
     [
         "Camry",
         "Civic",
+        "Accord",
+        "Accord",
+        "Accord",
+        "Accord",
+        "Accord",
         "Accord"
     ];
 
@@ -92,8 +97,10 @@ dataBase.AddCollection("Car");
 int delayTime = 10;
 
 Console.WriteLine(addRandomDocsBenchmark(dataBase, delayTime) / delayTime);
-Console.WriteLine(dataBase);
+// Console.WriteLine(dataBase);
 
-String query = "SET number 18.5 TO Age IN _ IN Car";
+String query = "Camry Where";
+
+String make = "Camry";
 
 dataBase.QueryDataBase(query, out _);

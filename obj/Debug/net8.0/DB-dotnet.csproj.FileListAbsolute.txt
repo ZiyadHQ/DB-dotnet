@@ -12,3 +12,4 @@ d:\DB-dotnet\obj\Debug\net8.0\refint\DB-dotnet.dll
 d:\DB-dotnet\obj\Debug\net8.0\DB-dotnet.pdb
 D:\DB-dotnet\obj\Debug\net8.0\DB-dotnet.genruntimeconfig.cache
 D:\DB-dotnet\obj\Debug\net8.0\ref\DB-dotnet.dll
+d:\DB-dotnet\obj\Debug\net8.0\DB-dotnet.sourcelink.json

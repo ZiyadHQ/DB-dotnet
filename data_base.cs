@@ -69,9 +69,9 @@ struct DataBase
 
         var parsed = Parser.Parse(Parser.Tokenize(query));
 
-        if(parsed.IsSelectionQuery)
+        if (parsed.IsSelectionQuery)
         {
-
+            GetQueryDocs(parsed);
         }
         else
         {
@@ -81,28 +81,68 @@ struct DataBase
         return [];
     }
 
-    public void GetQueryDocs(ParsedQuery parsedQuery)
+    public List<Document> GetQueryDocs(ParsedQuery parsedQuery)
     {
-
-        if(parsedQuery.Field == null)
+        if (parsedQuery.Field == null)
         {
-            Console.WriteLine(collections[parsedQuery.Collection]);
+            List<Document> documents = collections[parsedQuery.Collection].documents.Values.ToList();
+            Console.WriteLine($"docs found: {documents.Count}");
+            return documents;
         }
         else
         {
-            List<Document> documents = collections[parsedQuery.Collection].documents.Values.ToList();
-            documents
-            .Where(doc => doc.dataFields.ContainsKey(parsedQuery.Field))
-            .Select(doc => 
-            {
-                var value = doc.dataFields[parsedQuery.Field];
-                if(parsedQuery.Operation == "==")
-                {
-                    return doc.dataFields[parsedQuery.Field]. == parsedQuery.Value;
-                }
-            });
-        }
+            Console.WriteLine(parsedQuery.Collection);
+            var documents = collections[parsedQuery.Collection].documents.Values.ToList();
 
+            var filteredDocuments = documents
+                .Where(doc => doc.dataFields.ContainsKey(parsedQuery.Field))
+                .Where(doc =>
+                {
+                    var field = doc.dataFields[parsedQuery.Field];
+
+                    if (parsedQuery.Comparator == "==")
+                    {
+                        if (field.dataType == "string")
+                            return field.stringData == parsedQuery.Value;
+                        else if (field.dataType == "number")
+                            return field.numberData == double.Parse(parsedQuery.Value);
+                    }
+                    else if (parsedQuery.Comparator == ">")
+                    {
+                        if (field.dataType == "string")
+                            return String.Compare(field.stringData, parsedQuery.Value, StringComparison.Ordinal) > 0;
+                        else if (field.dataType == "number")
+                            return field.numberData > double.Parse(parsedQuery.Value);
+                    }
+                    else if (parsedQuery.Comparator == "<")
+                    {
+                        if (field.dataType == "string")
+                            return String.Compare(field.stringData, parsedQuery.Value, StringComparison.Ordinal) < 0;
+                        else if (field.dataType == "number")
+                            return field.numberData < double.Parse(parsedQuery.Value);
+                    }
+                    else if (parsedQuery.Comparator == ">=")
+                    {
+                        if (field.dataType == "string")
+                            return String.Compare(field.stringData, parsedQuery.Value, StringComparison.Ordinal) >= 0;
+                        else if (field.dataType == "number")
+                            return field.numberData >= double.Parse(parsedQuery.Value);
+                    }
+                    else if (parsedQuery.Comparator == "<=")
+                    {
+                        if (field.dataType == "string")
+                            return String.Compare(field.stringData, parsedQuery.Value, StringComparison.Ordinal) <= 0;
+                        else if (field.dataType == "number")
+                            return field.numberData <= double.Parse(parsedQuery.Value);
+                    }
+
+                    return false; // Default if no condition is met
+                });
+
+
+            Console.WriteLine($"docs found: {documents.Count}");
+            return documents;
+        }
     }
 
     public void AddField(ParsedQuery parsedQuery)
