@@ -71,14 +71,12 @@ struct DataBase
 
         if (parsed.IsSelectionQuery)
         {
-            GetQueryDocs(parsed);
+            return GetQueryDocs(parsed);
         }
         else
         {
-            AddField(parsed);
+            return AddField(parsed);
         }
-
-        return [];
     }
 
     public List<Document> GetQueryDocs(ParsedQuery parsedQuery)
@@ -137,15 +135,13 @@ struct DataBase
                     }
 
                     return false; // Default if no condition is met
-                });
-
-
-            Console.WriteLine($"docs found: {documents.Count}");
-            return documents;
+                }).ToList();
+            Console.WriteLine($"docs found: {filteredDocuments.Count}");
+            return filteredDocuments;
         }
     }
 
-    public void AddField(ParsedQuery parsedQuery)
+    public List<Document> AddField(ParsedQuery parsedQuery)
     {
 
         Document doc = new();
@@ -162,7 +158,8 @@ struct DataBase
             }
 
             collections![parsedQuery.Collection].AddDoc(doc, out String assignedID);
-            Console.WriteLine(assignedID);
+            doc.docID = assignedID;
+            Console.WriteLine($"Assigned ID of new Doc: {assignedID}");
         }
         else
         {
@@ -176,8 +173,10 @@ struct DataBase
             {
                 doc.addField(parsedQuery.Field, double.Parse(parsedQuery.Value));
             }
+            collections![parsedQuery.Collection].AddDoc(parsedQuery.DocumentId, doc);
         }
         Console.WriteLine(doc);
+        return [doc];
     }
 
     public override string ToString()
@@ -309,10 +308,10 @@ struct Document
 
     public override string ToString()
     {
-        String buffer = "";
+        String buffer = $"Document ID: {docID}_";
         foreach (var kvp in dataFields)
         {
-            buffer += kvp.Value + "\n";
+            buffer += kvp.Value + "_";
         }
 
         return buffer;
@@ -364,7 +363,7 @@ struct DocumentField
                 break;
         }
 
-        return $"{{ fieldName: {fieldName}, dataType: {dataType}, value: {dataString} }}";
+        return $"fieldName: {fieldName}, dataType: {dataType}, value: {dataString}";
     }
 
 }
