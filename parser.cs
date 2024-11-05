@@ -3,12 +3,15 @@ using System.Text.Json;
 /// <summary>
 /// Query Froms:
 /// Selection:
-///     {collection name} return all docs of collection {collection name}
-///     {collection name} Where {fieldName} {comparator: >, ==, <} {value}
+///     GET {collection name} - return all docs of collection {collection name}
+///     GET _ - return the names of all collections
+///     {collection name} Where {fieldName} {comparator: >, >=, ==, <=, <} {value}
+///     //uses lexical order when used to compare strings, except for '==' which matches two strings
 /// 
 /// Adding/Setting:
 ///     SET {valueType} {value} TO {field name} IN {docID} IN {collection name}
 ///     ADD {collection name} //add a new collection with name {collection name}
+///     ADD {collection name} - adds a new collection to the data base
 /// </summary>
 public class ParsedQuery
 {
