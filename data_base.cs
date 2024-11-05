@@ -1,5 +1,6 @@
 
 using System.Reflection.Metadata;
+using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -20,7 +21,7 @@ struct DataBase
 
     public bool AddCollection(String collectionName)
     {
-
+        Console.WriteLine($"adding new collection: {collectionName}");
         if (collections.ContainsKey(collectionName))
         {
             return false;
@@ -71,15 +72,31 @@ struct DataBase
 
         if (parsed.IsSelectionQuery)
         {
-            return GetQueryDocs(parsed);
+            return QueryWhere(parsed);
+        }
+        else if (parsed.IsADDQuery)
+        {
+            return QueryADD(parsed);
+        }
+        else if (parsed.IsGETQuery)
+        {
+            if (parsed.Collection == "_")
+            {
+                QueryGET(parsed);
+                return [];
+            }
+            else
+            {
+                return QueryWhere(parsed);
+            }
         }
         else
         {
-            return AddField(parsed);
+            return QuerySET(parsed);
         }
     }
 
-    public List<Document> GetQueryDocs(ParsedQuery parsedQuery)
+    public List<Document> QueryWhere(ParsedQuery parsedQuery)
     {
         if (parsedQuery.Field == null)
         {
@@ -141,7 +158,7 @@ struct DataBase
         }
     }
 
-    public List<Document> AddField(ParsedQuery parsedQuery)
+    public List<Document> QuerySET(ParsedQuery parsedQuery)
     {
 
         Document doc = new();
@@ -177,6 +194,31 @@ struct DataBase
         }
         Console.WriteLine(doc);
         return [doc];
+    }
+
+    public List<Document> QueryADD(ParsedQuery parsed)
+    {
+        if (!AddCollection(parsed.Collection))
+        {
+            throw new Exception("failed to add new collection, check whether your query was correct or if the collection already exists.");
+        }
+        return [];
+    }
+
+    public void QueryGET(ParsedQuery parsed)
+    {
+
+        if (collections.Count == 0)
+        {
+            throw new Exception("there are no collections in this data base, use ADD {collection name} to add a new collection");
+        }
+        else
+        {
+            List<String> list = new();
+            foreach (var kvp in collections) { list.Add($"{kvp.Key}"); };
+            throw new Exception(JsonSerializer.Serialize(list));
+        }
+
     }
 
     public override string ToString()

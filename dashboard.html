@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBMS Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #collections { margin-bottom: 20px; }
+        #results { margin-top: 20px; }
+        pre { background-color: #f4f4f4; padding: 10px; border: 1px solid #ccc; }
+        button { margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>DBMS Dashboard</h1>
+    <form id="queryForm">
+        <label for="query">Enter Query:</label><br>
+        <input type="text" id="query" name="query" style="width: 100%;"><br><br>
+        <button type="submit">Execute Query</button>
+    </form>
+
+    <div id="collections">
+        <h2>Collections:</h2>
+        <div id="collectionButtons"></div>
+    </div>
+
+    <div id="results">
+        <h2>Results:</h2>
+        <pre id="resultsContent">No query executed yet.</pre>
+    </div>
+
+    <script>
+        // Function to fetch and display collections when the page loads
+        window.onload = function() {
+            fetch('/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: "GET _"
+            })
+            .then(response => response.json()) // Parse the JSON response
+            .then(data => {
+                displayCollections(data); // Assuming JSON has a 'collections' field
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        };
+
+        // Form submission for manual query entry
+        document.getElementById('queryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const query = document.getElementById('query').value;
+            executeQuery(query);
+        });
+
+        // Function to display collection buttons
+        function displayCollections(collections) {
+            const collectionButtonsDiv = document.getElementById('collectionButtons');
+            collectionButtonsDiv.innerHTML = ''; // Clear previous buttons if any
+
+            collections.forEach(collection => {
+                const button = document.createElement('button');
+                button.textContent = collection;
+                button.onclick = (e) => {
+                    e.preventDefault(); // Prevent form submission if inside form
+                    executeQuery(`GET ${collection}`);
+                };
+                collectionButtonsDiv.appendChild(button);
+            });
+        }
+
+        // Function to execute any query and display results
+        function executeQuery(query) {
+            fetch('/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: query
+            })
+            .then(response => response.text()) // Handle plain text response for query results
+            .then(data => {
+                displayResults(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // Function to display query results
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('resultsContent');
+            resultsDiv.textContent = data; // Directly display the plain text response
+        }
+    </script>
+</body>
+</html>

@@ -164,3 +164,8 @@ Console.WriteLine($"recieved list size: {list.Count}");
 foreach(Document doc in list){Console.WriteLine(doc.ToString());}
 
 Console.WriteLine("Finished Program!");
+
+DataBaseServer server = new("http://localhost", 8080);
+server.dataBase = dataBase;
+
+server.Run();
